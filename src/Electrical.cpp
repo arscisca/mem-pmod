@@ -1,8 +1,8 @@
 #include "Electrical.h"
 
 DataVector vectorize(const PULParameters &parameters) {
-    return {parameters.Rsdc, parameters.Rsdc, parameters.Ls,
-            parameters.Rpdc, parameters.Rpac, parameters.Lp, parameters.Cp};
+    return DataVector({{parameters.Rsdc, parameters.Rsdc, parameters.Ls,
+            parameters.Rpdc, parameters.Rpac, parameters.Lp, parameters.Cp}});
 }
 
 PULParameters devectorize(const DataVector &data) {
