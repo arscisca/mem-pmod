@@ -11,7 +11,11 @@ set(LIB_DIR "lib")
 
 set(SOURCES
         ${INC_DIR}/Types.hpp
-        ${INC_DIR}/Measurements.h ${SRC_DIR}/Measurements.cpp)
+        ${INC_DIR}/Measurements.h ${SRC_DIR}/Measurements.cpp
+        ${INC_DIR}/Electrical.h ${SRC_DIR}/Electrical.cpp
+        ${INC_DIR}/MemoryModel.hpp
+        ${INC_DIR}/TSection.h ${SRC_DIR}/TSection.cpp
+        )
 # Additional packages
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 # Main executable
