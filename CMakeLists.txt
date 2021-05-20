@@ -43,9 +43,12 @@ enable_testing()
 set(TEST_DIR "test")
 set(TEST_SOURCES
         ${TEST_DIR}/test.h
-        ${TEST_DIR}/test_Measurements.cpp)
+        ${TEST_DIR}/test_Measurements.cpp
+        ${TEST_DIR}/test_TSection.cpp
+        )
 # Create executable
 add_executable(pmodtests ${SOURCES} ${TEST_SOURCES})
+target_compile_definitions(pmodtests PUBLIC PMOD_TEST)
 target_include_directories(pmodtests PRIVATE ${INC_DIR} ${LIB_DIR}/eigen)
 target_link_libraries(pmodtests gtest_main Eigen3::Eigen)
 include(GoogleTest)

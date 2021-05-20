@@ -8,13 +8,14 @@
 class TSection {
 public:
     TSection();
+    explicit TSection(double length);
 
     double getLength() const;
     void setLength(double length);
 
     Parameters computeParameters(double frequency, const PULParameters &pul_parameters);
 
-    Matrix3 computeABCD(double frequency, const PULParameters &pul_parameters);
+    Matrix2 computeABCD(double frequency, const PULParameters &pul_parameters);
 private:
     double _length;
 };

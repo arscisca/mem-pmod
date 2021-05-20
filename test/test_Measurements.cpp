@@ -1,4 +1,3 @@
-#include <gtest/gtest.h>
 #include "test.h"
 #include "Measurements.h"
 

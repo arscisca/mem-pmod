@@ -23,4 +23,12 @@ struct Parameters {
     double Lp;
     double Cp;
 };
+
+// Testing helpers
+#ifdef PMOD_TEST
+#include <iostream>
+bool operator==(const Parameters &p1, const Parameters &p2);
+std::ostream &operator<<(std::ostream &ostream, const Parameters &parameters);
+#endif
+
 #endif //MEM_PMOD_ELECTRICAL_H
