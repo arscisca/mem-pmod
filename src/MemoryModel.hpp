@@ -48,7 +48,7 @@ public:
         Complex y12 = - 1.0 / m2(0, 1);
         Complex y21 = y12;
         Complex y22 = m2(0, 0) / m2(0, 1) + m3(1, 0) / m3(0, 0);
-        return Matrix2({{y11, y12}, {y21, y22}});
+        return Matrix2{{y11, y12}, {y21, y22}};
     }
 
     Matrix2 computeZMatrix(size_t port1, size_t port2, double frequency, const PULParameters &pul_parameters) const {
