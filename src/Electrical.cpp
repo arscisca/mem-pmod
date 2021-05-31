@@ -1,5 +1,19 @@
 #include "Electrical.h"
 
+std::string complexMatrixToCSV(const Matrix2 &m) {
+    std::stringstream ss;
+    ss << std::scientific << std::showpos;
+    for (unsigned i = 0; i < m.rows(); i++) {
+        for (unsigned j = 0; j < m.cols(); j++) {
+            ss << m(i, j).real() << "," << m(i, j).imag() << ",";
+        }
+    }
+    std::string result = ss.str();
+    // Drop last comma
+    result = result.substr(0, result.size() - 1);
+    return result;
+}
+
 DataVector vectorize(const PULParameters &parameters) {
     return DataVector({{parameters.Rsdc, parameters.Rsdc, parameters.Ls,
             parameters.Rpdc, parameters.Rpac, parameters.Lp, parameters.Cp}});

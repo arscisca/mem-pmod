@@ -1,7 +1,11 @@
 #ifndef MEM_PMOD_ELECTRICAL_H
 #define MEM_PMOD_ELECTRICAL_H
 
+#include <string>
+#include <sstream>
 #include "Types.hpp"
+
+std::string complexMatrixToCSV(const Matrix2 &m);
 
 struct PULParameters {
     double Rsdc;
