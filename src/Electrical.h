@@ -11,7 +11,7 @@ struct PULParameters {
     double Cp;
 };
 
-struct Parameters {
+struct LumpedParameters {
     double Rs;
     double Ls;
     double Rp;
@@ -24,8 +24,8 @@ struct Parameters {
 #include <iostream>
 #include <string>
 #include <sstream>
-bool operator==(const Parameters &p1, const Parameters &p2);
-std::ostream &operator<<(std::ostream &ostream, const Parameters &parameters);
+bool operator==(const LumpedParameters &p1, const LumpedParameters &p2);
+std::ostream &operator<<(std::ostream &ostream, const LumpedParameters &parameters);
 #endif
 
 #endif //MEM_PMOD_ELECTRICAL_H

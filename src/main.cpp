@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     pul_parameters.Ls = 0.0;
     pul_parameters.Lp = 6.908e-12 / 1000.0;
     pul_parameters.Cp = 1.342e-9 * 1000.0;
-    memory.setPULParameters(pul_parameters);
+    memory.setPULParameters(pul_parameters, 10.0e9);
 
     // Print frequency sweep
     memory.printLogarithmicFrequencySweep(std::cout, 2, 20, 1.0e6, 10.0e9, 200);
