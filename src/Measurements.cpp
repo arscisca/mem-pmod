@@ -8,10 +8,7 @@ Measurements readMeasurements(std::istream &istream) {
     Complex Z11, Z12, Z21, Z22;
     while (istream >> f >> Z11 >> Z12 >> Z21 >> Z22) {
         measurements.frequencies.push_back(f);
-        measurements.Z11.push_back(Z11);
-        measurements.Z12.push_back(Z12);
-        measurements.Z21.push_back(Z21);
-        measurements.Z22.push_back(Z22);
+        measurements.Z.emplace_back(Matrix2{{Z11, Z12}, {Z21, Z22}});
     }
     return measurements;
 }

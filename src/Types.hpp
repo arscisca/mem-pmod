@@ -3,11 +3,14 @@
 
 #include <Eigen/Dense>
 #include <complex>
-#include <iostream>
 
-using namespace std::complex_literals;
 using Complex = std::complex<double>;
-using Matrix2 = Eigen::Matrix<std::complex<double>, 2, 2>;
-using DataVector = Eigen::Matrix<double, 7, 1>;
+
+template <std::size_t N>
+using Matrix = Eigen::Matrix<Complex, N, N>;
+using Matrix2 = Matrix<2>;
+
+template <std::size_t N>
+using Vector = Eigen::Vector<double, N>;
 
 #endif //MEM_PMOD_TYPES_HPP

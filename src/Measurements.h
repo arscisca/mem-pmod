@@ -8,10 +8,7 @@
 
 struct Measurements {
     std::vector<double> frequencies;
-    std::vector<Complex> Z11;
-    std::vector<Complex> Z12;
-    std::vector<Complex> Z21;
-    std::vector<Complex> Z22;
+    std::vector<Matrix2> Z;
 };
 
 // Read measurements
