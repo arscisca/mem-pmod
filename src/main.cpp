@@ -5,7 +5,8 @@
 int main(int argc, char **argv) {
     const unsigned nsections = 23;
     MemoryModel<nsections> memory;
-    PULParameters pul_parameters;
+    Measurements measurements = readMeasurements("../data/measurements.txt", 2, 20);
+    /* PULParameters pul_parameters;
     // Initialize paper with the results presented on the paper
     const double total_length = 4074.0e-6;
     std::array<double, nsections> lengths;
@@ -21,6 +22,12 @@ int main(int argc, char **argv) {
     memory.setPULParameters(pul_parameters, 10.0e9);
 
     // Print frequency sweep
+    memory.printLogarithmicFrequencySweep(std::cout, 2, 20, 1.0e6, 10.0e9, 200);
+    */
+    const double total_length = 4074.0e-6;
+    std::array<double, nsections> lengths;
+    lengths.fill(total_length / nsections);
+    memory = MemoryModel<nsections>::fit(measurements, lengths, pmod::optimization::POWELL);
     memory.printLogarithmicFrequencySweep(std::cout, 2, 20, 1.0e6, 10.0e9, 200);
     return 0;
 }
