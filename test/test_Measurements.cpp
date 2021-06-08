@@ -3,7 +3,7 @@
 using namespace std::complex_literals;
 TEST(Measurements, Input) {
     // Read measurements from text file
-    Measurements m = readMeasurements(test_data_path + "/measurements.txt");
+    Measurements m = readMeasurements(test_data_path + "/fakemeasurements.txt", 2, 22);
     ASSERT_EQ(m.frequencies.size(), 50ull) << "Incorrect size of sampled data";
     for (size_t i = 0; i < m.frequencies.size(); i++) {
         ASSERT_DOUBLE_EQ(m.frequencies[i], (i + 1) * 100.0e6) << "Frequency does not have the expected value";

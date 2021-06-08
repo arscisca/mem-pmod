@@ -9,10 +9,12 @@
 struct Measurements {
     std::vector<double> frequencies;
     std::vector<Matrix2> Z;
+    unsigned port1;
+    unsigned port2;
 };
 
 // Read measurements
-Measurements readMeasurements(std::istream &istream);
-Measurements readMeasurements(const std::string &fname);
+Measurements readMeasurements(std::istream &istream, unsigned port1, unsigned port2);
+Measurements readMeasurements(const std::string &fname, unsigned port1, unsigned port2);
 
 #endif //MEM_PMOD_MEASUREMENTS_H
