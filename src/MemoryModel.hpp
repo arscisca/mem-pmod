@@ -3,6 +3,7 @@
 
 #include <array>
 #include <vector>
+#include <thread>
 #include "Types.hpp"
 #include "Electrical.h"
 #include "Measurements.h"
@@ -134,7 +135,7 @@ public:
      */
     static MemoryModel fit(const Measurements &measurements,
                            const std::array<double, NPowerPorts> lengths,
-                           pmod::optimization::Algorithm method) {
+                           pmod::optimization::Algorithm method = pmod::optimization::Algorithm::POWELL) {
         // Create geometric model
         GeometricMemoryModel<NPowerPorts> geometric_model(lengths);
         // Run optimization function to get PUL Parameters
@@ -148,7 +149,7 @@ public:
                 1.342e-9 * 1000.0
         };
         Vector<7> vectorized_pul_parameters = pmod::optimization::optimize<7>(
-                pmod::optimization::POWELL,
+                method,
                 [&geometric_model, &measurements](const Vector<7> &vectorized_pul_parameters) {
                     PULParameters pul_parameters = devectorizeFittingInput(vectorized_pul_parameters);
                     return fittingError(geometric_model, pul_parameters, measurements);
@@ -188,21 +189,67 @@ private:
     static double fittingError(
             const GeometricMemoryModel<NPowerPorts> &model,
             const PULParameters &pul_parameters,
-            const Measurements &measurements) {
-        const std::vector<double> frequencies = measurements.frequencies;
+            const Measurements &measurements,
+            bool enable_threading = true) {
+        // Final error value
         double error = 0.0;
-        for (std::size_t i = 0; i < frequencies.size(); i++) {
-            double frequency = frequencies[i];
-            Matrix2 measured_Z = measurements.Z[i];
-            Matrix2 computed_Z = model.computeZMatrix(measurements.port1, measurements.port2,
-                                                      frequency,
-                                                      pul_parameters);
-            double sqnorm = (measured_Z - computed_Z).squaredNorm();
-            error += sqnorm;
+        // Check for ability to spawn threads
+        const std::size_t spawnable_threads = std::thread::hardware_concurrency();
+        if (spawnable_threads == 0) {
+            // Undefined behavior, do not use threads
+            enable_threading = false;
+        }
+        if (!enable_threading) {
+            // Directly call the thread worker without actually spawning the thread
+            fittingErrorWorker(std::ref(error), model, pul_parameters, measurements,
+                               0, measurements.frequencies.size());
+            return error;
+        }
+        // Spawn threads
+        const std::size_t nthreads = spawnable_threads;
+        std::vector<std::thread> threads(nthreads);
+        std::vector<double> partial_errors(nthreads);
+        std::size_t division_size = measurements.frequencies.size() / nthreads;
+        for (std::size_t i = 0; i < nthreads; i++) {
+            std::size_t interval_size = division_size;
+            if (i == nthreads - 1)
+                interval_size = (measurements.frequencies.size() - i * interval_size);
+            // Launch threads
+            threads[i] = std::thread(
+                    MemoryModel<NPowerPorts>::fittingErrorWorker,
+                    std::ref(partial_errors[i]),
+                    model,
+                    pul_parameters,
+                    measurements,
+                    i * division_size,
+                    interval_size
+            );
+        }
+        // Join threads and compute total error
+        for (size_t i = 0; i < nthreads; i++) {
+            threads[i].join();
+            error += partial_errors[i];
         }
         return error;
     }
 
+    static void fittingErrorWorker(
+            double &error,
+            const GeometricMemoryModel<NPowerPorts> &model,
+            const PULParameters &pul_parameters,
+            const Measurements &measurements,
+            std::size_t interval_start,
+            std::size_t interval_size) {
+        const std::vector<double> &frequencies = measurements.frequencies;
+        error = 0.0;
+        for (std::size_t i = interval_start; i < interval_start + interval_size; i++) {
+            double frequency = frequencies[i];
+            Matrix2 Z_meas = measurements.Z[i];
+            Matrix2 Z_comp = model.computeZMatrix(measurements.port1, measurements.port2, frequency, pul_parameters);
+            double sqnorm = (Z_meas - Z_comp).squaredNorm();
+            error += sqnorm;
+        }
+    }
 private:
     std::array<TSection, NPowerPorts> _sections;
     PULParameters _pul_parameters;

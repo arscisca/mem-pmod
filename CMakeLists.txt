@@ -3,7 +3,7 @@ project(mem_pmod)
 
 # Set compiler flags
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -Werror -Wpedantic")
+set(CMAKE_CXX_FLAGS "-Werror -Wall -Wpedantic")
 # Set target sources
 set(SRC_DIR "src")
 set(INC_DIR "src")
@@ -27,7 +27,7 @@ target_include_directories(mem_pmod PRIVATE
         )
 
 # Libraries
-target_link_libraries(mem_pmod Eigen3::Eigen)
+target_link_libraries(mem_pmod PRIVATE Eigen3::Eigen pthread)
 
 
 # -- GTest

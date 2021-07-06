@@ -6,6 +6,8 @@ int main(int argc, char **argv) {
     const unsigned nsections = 23;
     MemoryModel<nsections> memory;
     Measurements measurements = readMeasurements("../data/measurements.txt", 2, 20);
+    // Initialize eigen with multithreading
+    Eigen::initParallel();
     /* PULParameters pul_parameters;
     // Initialize paper with the results presented on the paper
     const double total_length = 4074.0e-6;
