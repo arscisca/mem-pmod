@@ -23,7 +23,6 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 add_executable(mem_pmod ${SRC_DIR}/main.cpp ${SOURCES})
 target_include_directories(mem_pmod PRIVATE
         ${INC_DIR}
-        ${LIB_DIR}/eigen
         )
 
 # Libraries

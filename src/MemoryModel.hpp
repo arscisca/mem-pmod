@@ -135,18 +135,18 @@ public:
      */
     static MemoryModel fit(const Measurements &measurements,
                            const std::array<double, NPowerPorts> lengths,
-                           pmod::optimization::Algorithm method = pmod::optimization::Algorithm::POWELL) {
+                           pmod::optimization::Algorithm method = pmod::optimization::Algorithm::CDESCENT) {
         // Create geometric model
         GeometricMemoryModel<NPowerPorts> geometric_model(lengths);
         // Run optimization function to get PUL Parameters
         Vector<7> initial_values = {
-                1211.0,
-                708.0 / sqrt(1.0e9),
-                2.048e-3,
-                0.882e-3 / sqrt(1.0e9),
+                1000.0,
+                1000.0 / sqrt(1.0e9),
+                1.0e-3,
+                1.0e-3 / sqrt(1.0e9),
                 0.0,
-                6.908e-12 / 1000.0,
-                1.342e-9 * 1000.0
+                10.0e-12 / 1000.0,
+                1.0e-9 * 1000.0
         };
         Vector<7> vectorized_pul_parameters = pmod::optimization::optimize<7>(
                 method,
@@ -254,5 +254,18 @@ private:
     std::array<TSection, NPowerPorts> _sections;
     PULParameters _pul_parameters;
 };
+
+template<std::size_t NPowerPorts>
+std::ostream &operator<<(std::ostream &ostream, const MemoryModel<NPowerPorts> &model) {
+    const PULParameters &pul_parameters = model.getPULParameters();
+    ostream << "Rsdc = " << pul_parameters.Rsdc << "\n"
+            << "Rsac = " << pul_parameters.Rsac << "\n"
+            << "Ls   = " << pul_parameters.Ls << "\n"
+            << "Rpdc = " << pul_parameters.Rpdc << "\n"
+            << "Rpac = " << pul_parameters.Rpac << "\n"
+            << "Lp   = " << pul_parameters.Lp << "\n"
+            << "Cp   = " << pul_parameters.Cp << std::endl;
+    return ostream;
+}
 
 #endif //MEM_PMOD_MEMORYMODEL_HPP

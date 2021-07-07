@@ -29,7 +29,8 @@ int main(int argc, char **argv) {
     const double total_length = 4074.0e-6;
     std::array<double, nsections> lengths;
     lengths.fill(total_length / nsections);
-    memory = MemoryModel<nsections>::fit(measurements, lengths, pmod::optimization::POWELL);
+    memory = MemoryModel<nsections>::fit(measurements, lengths, pmod::optimization::CDESCENT);
+    std::cout << memory;
     memory.printLogarithmicFrequencySweep(std::cout, 2, 20, 1.0e6, 10.0e9, 200);
     return 0;
 }

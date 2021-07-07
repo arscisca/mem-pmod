@@ -5,27 +5,51 @@
 #include "Types.hpp"
 
 namespace pmod::optimization {
+    const std::size_t MAX_ITERATIONS = 1024;
+
     enum Algorithm {
-        POWELL
+        CDESCENT
     };
 
     template<std::size_t N>
     Vector<N> optimize(Algorithm algorithm, std::function<double(Vector<N>)> function, Vector<N> x0, double threshold);
 
-        template<std::size_t N>
-    Vector<N> powell(std::function<double(Vector<N>)> function, Vector<N> x0, double threshold) {
-        // FIXME: actual implementation
-        return x0;
+    template<std::size_t N>
+    Vector<N> cdescent(Vector<N> x0, std::function<double(Vector<N>)> function, double threshold) {
+        constexpr double step_factor = 0.01;
+        std::size_t iteration = 0;
+        Vector<N> x(x0);
+        double y = function(x);
+        while (abs(y) > threshold && iteration < MAX_ITERATIONS) {
+            // Descend along each direction
+            for (std::size_t i = 0; i < N; i++) {
+                // Initialize step
+                Vector<N> step = Vector<N>::Zero();
+                step[i] = abs(x[i]) * step_factor;
+                // Check whether it's best to go left or right
+                Vector<N> new_x = x + step;
+                double new_y = function(new_x);
+                if (new_y < y) {
+                    // Go left
+                    step = -1 * step;
+                    new_x = x + step;
+                }
+                // Advance
+                do {
+                    x = new_x;
+                    y = new_y;
+                    new_x = x + step;
+                    new_y = function(new_x);
+                    iteration++;
+                } while (new_y < y && iteration < MAX_ITERATIONS / (6 * N));
+            }
+        }
+        return x;
     }
 
     template<std::size_t N>
     Vector<N> optimize(Algorithm algorithm, std::function<double(Vector<N>)> function, Vector<N> x0, double threshold) {
-        switch(algorithm) {
-            case POWELL:
-                return powell<N>(function, x0, threshold);
-            default:
-                return Vector<N>::Zero();
-        }
+        return cdescent<N>(x0, function, threshold);
     }
 }
 #endif //MEM_PMOD_OPTIMIZATION_HPP
