@@ -18,7 +18,7 @@ set(SOURCES
         ${INC_DIR}/Optimization.hpp
         )
 # Additional packages
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 3.3 REQUIRED)
 # Main executable
 add_executable(mem_pmod ${SRC_DIR}/main.cpp ${SOURCES})
 target_include_directories(mem_pmod PRIVATE
@@ -49,7 +49,7 @@ set(TEST_SOURCES
 # Create executable
 add_executable(pmodtests ${SOURCES} ${TEST_SOURCES})
 target_compile_definitions(pmodtests PUBLIC PMOD_TEST)
-target_include_directories(pmodtests PRIVATE ${INC_DIR} ${LIB_DIR}/eigen)
+target_include_directories(pmodtests PRIVATE ${INC_DIR} ${EIGEN3_INCLUDE_DIR})
 target_link_libraries(pmodtests gtest_main Eigen3::Eigen)
 include(GoogleTest)
 gtest_discover_tests(pmodtests)

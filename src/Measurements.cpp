@@ -10,7 +10,9 @@ Measurements readMeasurements(std::istream &istream, unsigned port1, unsigned po
     istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     while (istream >> f >> Z11 >> Z12 >> Z21 >> Z22) {
         measurements.frequencies.push_back(f);
-        measurements.Z.emplace_back(Matrix2{{Z11, Z12}, {Z21, Z22}});
+        Matrix2 Z;
+        Z << Z11, Z12, Z21, Z22;
+        measurements.Z.emplace_back(Z);
     }
     measurements.port1 = port1;
     measurements.port2 = port2;

@@ -29,10 +29,10 @@ Matrix2 GeometricTSection::computeABCD(double frequency, const LumpedParameters 
     Complex z =  j * omega * parameters.Ls + parameters.Rs;
     Complex y = (j * omega * parameters.Cp) /
                 (1.0 + j * omega * parameters.Rp * parameters.Cp - omega * omega * parameters.Lp * parameters.Cp);
-    return Matrix2 {
-            {1.0 + z * y, (z * y + 2.0) * z},
-            {y,           1.0 + z * y}
-    };
+    Matrix2 ABCD;
+    ABCD << 1.0 + z * y, (z * y + 2.0) * z,
+            y,           1.0 + z * y;
+    return ABCD;
 }
 
 // --- TSection ---
