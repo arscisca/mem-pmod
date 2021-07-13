@@ -25,7 +25,6 @@ namespace pmod::optimization {
         Vector<N> x_min_absolute = x;
         double y_min_absolute = y;
         while (!converged && iteration < MAX_ITERATIONS) {
-            std::cout << iteration << " (" << abs(y) << ")\n";
             // Descend along each direction
             std::size_t i = iteration % N;
             // Find minimum by sampling from x / 1000 to 1000 x
@@ -56,7 +55,6 @@ namespace pmod::optimization {
 
             if (count_times_stable >= 2*N) {
                 // Function has been stable in each coordinate, try to disturb it if not too close to the end
-                std::cout << "Noise!\n";
                 if (iteration < MAX_ITERATIONS / 10) {
                     Vector<N> noise(Vector<N>::Random());
                     x = x.cwiseProduct(Vector<N>::Ones() + noise / 100);
@@ -72,7 +70,6 @@ namespace pmod::optimization {
             converged = (abs(y) <= threshold) || count_times_stable >= 3*N;
             iteration++;
         }
-        std::cout.flush();
         return x_min_absolute;
     }
 

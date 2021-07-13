@@ -11,6 +11,7 @@ struct Measurements {
     std::vector<Matrix2> Z;
     unsigned port1;
     unsigned port2;
+    std::size_t nsamples;
 };
 
 // Read measurements

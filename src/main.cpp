@@ -1,36 +1,72 @@
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 #include "MemoryModel.hpp"
 #include "Measurements.h"
 
+
+
 int main(int argc, char **argv) {
-    const unsigned nsections = 23;
-    MemoryModel<nsections> memory;
-    Measurements measurements = readMeasurements("../data/measurements.txt", 2, 20);
+    // Check input arguments
+    if (argc < 4) {
+        std::cerr << "mem-pmod error: usage: mem-pmod FMEAS PORT1 PORT2 [-]" << std::endl;
+        return -1;
+    }
+    // Parse input arguments
+    std::string measurements_fname(argv[1]);
+    if (!std::filesystem::exists(measurements_fname)) {
+        std::cerr << "mem-pmod error: file " << std::filesystem::absolute(measurements_fname) << "does not exist."
+                  << std::endl;
+        return -1;
+    }
+    unsigned port1 = std::stoi(argv[2]);
+    unsigned port2 = std::stoi(argv[3]);
+    bool sweep_enabled = false;
+    std::size_t sweep_n_samples;
+    for (int i = 4; i < argc; i++) {
+        // Parse optional arguments
+        std::string arg(argv[i]);
+        if (arg.compare(0, 8, "--fsweep") == 0) {
+            // Check if there are enough arguments
+            // Additional arguments are NSAMPLES
+            if (i + 1 >= argc) {
+                std::cerr << "mem-pmod error: usage: mem-pmod [...] --sweep_enabled NSAMPLES";
+                return -1;
+            }
+            sweep_n_samples = std::stoull(argv[i+1]);
+            sweep_enabled = true;
+            i += 1;
+        }
+    }
     // Initialize eigen with multithreading
     Eigen::initParallel();
-    /* PULParameters pul_parameters;
-    // Initialize paper with the results presented on the paper
-    const double total_length = 4074.0e-6;
-    std::array<double, nsections> lengths;
-    lengths.fill(total_length / nsections);
-    memory.setSectionLengths(lengths);
-    pul_parameters.Rsdc = 1211.0;
-    pul_parameters.Rsac = 708.0 / sqrt(1.0e9);
-    pul_parameters.Rpdc = 2.048e-3;
-    pul_parameters.Rpac = 0.882e-3 / sqrt(1.0e9);
-    pul_parameters.Ls = 0.0;
-    pul_parameters.Lp = 6.908e-12 / 1000.0;
-    pul_parameters.Cp = 1.342e-9 * 1000.0;
-    memory.setPULParameters(pul_parameters, 10.0e9);
 
-    // Print frequency sweep
-    memory.printLogarithmicFrequencySweep(std::cout, 2, 20, 1.0e6, 10.0e9, 200);
-    */
+    // Read measurements
+    Measurements measurements = readMeasurements(measurements_fname, port1, port2);
+
+    // Physical characteristics of memory
+    const unsigned nsections = 23;
     const double total_length = 4074.0e-6;
-    std::array<double, nsections> lengths;
+    std::array<double, nsections> lengths{};
     lengths.fill(total_length / nsections);
+    // Fit model
+    MemoryModel<nsections> memory;
+    std::cout << "Fitting " << std::filesystem::absolute(measurements_fname) << "..." << std::flush;
     memory = MemoryModel<nsections>::fit(measurements, lengths, pmod::optimization::CDESCENT);
-    std::cout << memory;
-    memory.printLogarithmicFrequencySweep(std::cout, 2, 20, 1.0e6, 10.0e9, 200);
+    std::cout << " Done!\n"
+              << "Memory parameters:\n"
+              << memory << std::endl;
+    // Print frequency sweep
+    if (sweep_enabled) {
+        std::ofstream fsweep("fsweep.txt");
+        std::cout << "Saving frequency sweep on " << std::filesystem::absolute("fsweep.txt") << "...";
+        memory.printLogarithmicFrequencySweep(
+                fsweep,
+                port1, port2,
+                measurements.frequencies[0], measurements.frequencies[measurements.nsamples - 1],
+                sweep_n_samples);
+        fsweep.close();
+        std::cout << " Done!" << std::endl;
+    }
     return 0;
 }

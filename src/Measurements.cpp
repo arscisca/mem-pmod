@@ -8,9 +8,11 @@ Measurements readMeasurements(std::istream &istream, unsigned port1, unsigned po
     Complex Z11, Z12, Z21, Z22;
     // Ignore header line
     istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    measurements.nsamples = 0;
     while (istream >> f >> Z11 >> Z12 >> Z21 >> Z22) {
         measurements.frequencies.push_back(f);
         measurements.Z.emplace_back(Matrix2{{Z11, Z12}, {Z21, Z22}});
+        measurements.nsamples++;
     }
     measurements.port1 = port1;
     measurements.port2 = port2;

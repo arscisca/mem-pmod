@@ -3,3 +3,6 @@
 
 # Ignore build
 build/
+
+# Ignore program outputs
+fsweep.txt

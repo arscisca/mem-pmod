@@ -258,13 +258,13 @@ private:
 template<std::size_t NPowerPorts>
 std::ostream &operator<<(std::ostream &ostream, const MemoryModel<NPowerPorts> &model) {
     const PULParameters &pul_parameters = model.getPULParameters();
-    ostream << "Rsdc = " << pul_parameters.Rsdc << "\n"
-            << "Rsac = " << pul_parameters.Rsac << "\n"
-            << "Ls   = " << pul_parameters.Ls << "\n"
-            << "Rpdc = " << pul_parameters.Rpdc << "\n"
-            << "Rpac = " << pul_parameters.Rpac << "\n"
-            << "Lp   = " << pul_parameters.Lp << "\n"
-            << "Cp   = " << pul_parameters.Cp << std::endl;
+    ostream << "Rsdc = " << pul_parameters.Rsdc << " \u03A9\n"
+            << "Rsac = " << pul_parameters.Rsac << " \u03A9\n"
+            << "Ls   = " << pul_parameters.Ls   << " H\n"
+            << "Rpdc = " << pul_parameters.Rpdc << " \u03A9\n"
+            << "Rpac = " << pul_parameters.Rpac << " \u03A9\n"
+            << "Lp   = " << pul_parameters.Lp   << " H\n"
+            << "Cp   = " << pul_parameters.Cp   << " F" << std::endl;
     return ostream;
 }
 
