@@ -45,14 +45,17 @@ namespace pmod::optimization {
             }
             x[i] = x_min[i];
             y = y_min;
-            // Check for convergence
-            if (y != 0 && (y - last_y) / y < 1e-6) {
+            // Check for local minimum convergence
+            if (y != 0 && abs(y - last_y) / y < 1e-6) {
                 count_times_stable++;
             } else {
                 count_times_stable = 0;
             }
             last_y = y;
-
+            if (y < y_min_absolute) {
+                y_min_absolute = y;
+                x_min_absolute = x;
+            }
             if (count_times_stable >= 2*N) {
                 // Function has been stable in each coordinate, try to disturb it if not too close to the end
                 if (iteration < MAX_ITERATIONS / 10) {
