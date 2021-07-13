@@ -75,7 +75,11 @@ namespace pmod::optimization {
 
     template<std::size_t N>
     Vector<N> optimize(Algorithm algorithm, std::function<double(Vector<N>)> function, Vector<N> x0, double threshold) {
-        return cdescent<N>(x0, function, threshold);
+        switch (algorithm) {
+            case Algorithm::CDESCENT:
+                return cdescent<N>(x0, function, threshold);
+        }
+        throw std::logic_error("Invalid algorithm");
     }
 }
 #endif //MEM_PMOD_OPTIMIZATION_HPP

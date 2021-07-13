@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     unsigned port1 = std::stoi(argv[2]);
     unsigned port2 = std::stoi(argv[3]);
     bool sweep_enabled = false;
-    std::size_t sweep_n_samples;
+    std::size_t sweep_n_samples = 0;
     for (int i = 4; i < argc; i++) {
         // Parse optional arguments
         std::string arg(argv[i]);

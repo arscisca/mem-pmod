@@ -3,7 +3,7 @@ project(mem_pmod)
 
 # Set compiler flags
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Werror -Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS "-Werror -Wall -Wpedantic -Wextra")
 # Set target sources
 set(SRC_DIR "src")
 set(INC_DIR "src")
