@@ -45,7 +45,9 @@ public:
         Complex y12 = - 1.0 / m2(0, 1);
         Complex y21 = y12;
         Complex y22 = m2(0, 0) / m2(0, 1) + m3(1, 0) / m3(0, 0);
-        return Matrix2{{y11, y12}, {y21, y22}};
+        Matrix2 Y;
+        Y << y11, y12, y21, y22;
+        return Y;
     }
 
     Matrix2 computeZMatrix(size_t port1, size_t port2, double frequency, const PULParameters &pul_parameters) const {
@@ -139,15 +141,14 @@ public:
         // Create geometric model
         GeometricMemoryModel<NPowerPorts> geometric_model(lengths);
         // Run optimization function to get PUL Parameters
-        Vector<7> initial_values = {
-                1000.0,
+        Vector<7> initial_values;
+        initial_values << 1000.0,
                 1000.0 / sqrt(1.0e9),
                 1.0e-3,
                 1.0e-3 / sqrt(1.0e9),
                 0.0,
                 10.0e-12 / 1000.0,
-                1.0e-9 * 1000.0
-        };
+                1.0e-9 * 1000.0;
         Vector<7> vectorized_pul_parameters = pmod::optimization::optimize<7>(
                 method,
                 [&geometric_model, &measurements](const Vector<7> &vectorized_pul_parameters) {
