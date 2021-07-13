@@ -45,6 +45,7 @@ set(TEST_SOURCES
         ${TEST_DIR}/test.h
         ${TEST_DIR}/test_Measurements.cpp
         ${TEST_DIR}/test_TSection.cpp
+        ${TEST_DIR}/test_Optimization.cpp
         )
 # Create executable
 add_executable(pmodtests ${SOURCES} ${TEST_SOURCES})
