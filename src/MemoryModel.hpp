@@ -73,6 +73,7 @@ template<size_t NPowerPorts>
 class MemoryModel : private GeometricMemoryModel<NPowerPorts> {
 public:
     MemoryModel() : _sections(), _pul_parameters{NAN, NAN, NAN, NAN, NAN, NAN, NAN} {};
+    MemoryModel(const MemoryModel<NPowerPorts> &other) = default;
     MemoryModel(const std::array<double, NPowerPorts> lengths, const PULParameters &pul_parameters, double fmax) {
         for (std::size_t i = 0; i < NPowerPorts; i++)
             _sections[i].setLength(lengths[i]);
@@ -135,9 +136,10 @@ public:
      * @param method optimization method
      * @return an initialized MemoryModel with the fitted parameters
      */
-    static MemoryModel fit(const Measurements &measurements,
-                           const std::array<double, NPowerPorts> lengths,
-                           pmod::optimization::Algorithm method = pmod::optimization::Algorithm::CDESCENT) {
+    static MemoryModel<NPowerPorts> fit(
+            const Measurements &measurements,
+            const std::array<double, NPowerPorts> lengths,
+            pmod::optimization::Algorithm method = pmod::optimization::Algorithm::CDESCENT) {
         // Create geometric model
         GeometricMemoryModel<NPowerPorts> geometric_model(lengths);
         // Run optimization function to get PUL Parameters
@@ -164,6 +166,9 @@ public:
                                        measurements.frequencies[measurements.frequencies.size() - 1]);
         return model;
     }
+
+    // -- Operators --
+    MemoryModel<NPowerPorts> &operator=(const MemoryModel<NPowerPorts> &other) = default;
 private:
     Matrix2 getSectionABCD(std::size_t section, double frequency, const PULParameters &) const {
         return _sections[section].ABCD(frequency);
@@ -259,13 +264,13 @@ private:
 template<std::size_t NPowerPorts>
 std::ostream &operator<<(std::ostream &ostream, const MemoryModel<NPowerPorts> &model) {
     const PULParameters &pul_parameters = model.getPULParameters();
-    ostream << "Rsdc = " << pul_parameters.Rsdc << " \u03A9\n"
-            << "Rsac = " << pul_parameters.Rsac << " \u03A9\n"
-            << "Ls   = " << pul_parameters.Ls   << " H\n"
-            << "Rpdc = " << pul_parameters.Rpdc << " \u03A9\n"
-            << "Rpac = " << pul_parameters.Rpac << " \u03A9\n"
-            << "Lp   = " << pul_parameters.Lp   << " H\n"
-            << "Cp   = " << pul_parameters.Cp   << " F" << std::endl;
+    ostream << "Rsdc = " << pul_parameters.Rsdc << " \u03A9 / m\n"
+            << "Rsac = " << pul_parameters.Rsac << " \u03A9 / (m * \u221AHz)\n"
+            << "Ls   = " << pul_parameters.Ls   << " H / m\n"
+            << "Rpdc = " << pul_parameters.Rpdc << " \u03A9 * m\n"
+            << "Rpac = " << pul_parameters.Rpac << " \u03A9 / (m * \u221AHz)\n"
+            << "Lp   = " << pul_parameters.Lp   << " H * m\n"
+            << "Cp   = " << pul_parameters.Cp   << " F / n" << std::endl;
     return ostream;
 }
 

@@ -10,6 +10,7 @@ set(INC_DIR "src")
 set(LIB_DIR "lib")
 
 set(SOURCES
+        ${SRC_DIR}/main.cpp
         ${INC_DIR}/Types.hpp
         ${INC_DIR}/Measurements.h ${SRC_DIR}/Measurements.cpp
         ${INC_DIR}/Electrical.h ${SRC_DIR}/Electrical.cpp
@@ -20,7 +21,7 @@ set(SOURCES
 # Additional packages
 find_package(Eigen3 3.3 REQUIRED)
 # Main executable
-add_executable(mem_pmod ${SRC_DIR}/main.cpp ${SOURCES})
+add_executable(mem_pmod ${SOURCES})
 target_include_directories(mem_pmod PRIVATE
         ${INC_DIR}
         )

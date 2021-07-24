@@ -1,10 +1,25 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <chrono>
 #include "MemoryModel.hpp"
 #include "Measurements.h"
 
-
+template <std::size_t NPowerPorts>
+MemoryModel<NPowerPorts> fit(
+        const std::string &fpath,
+        const Measurements &measurements,
+        const std::array<double, NPowerPorts> &lengths) {
+    std::cout << "Fitting " << fpath << "..." << std::flush;
+    auto tstart = std::chrono::high_resolution_clock::now();
+    MemoryModel<NPowerPorts> memory(MemoryModel<NPowerPorts>::fit(measurements, lengths, pmod::optimization::CDESCENT));
+    auto tend = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration_s = tend - tstart;
+    std::cout << " Done! (" << duration_s.count() << " s)\n"
+              << "Memory parameters:\n"
+              << memory << std::endl;
+    return memory;
+}
 
 int main(int argc, char **argv) {
     // Check input arguments
@@ -30,7 +45,7 @@ int main(int argc, char **argv) {
             // Check if there are enough arguments
             // Additional arguments are NSAMPLES
             if (i + 1 >= argc) {
-                std::cerr << "mem-pmod error: usage: mem-pmod [...] --sweep_enabled NSAMPLES";
+                std::cerr << "mem-pmod error: usage: mem-pmod [...] --fsweep NSAMPLES";
                 return -1;
             }
             sweep_n_samples = std::stoull(argv[i+1]);
@@ -50,12 +65,8 @@ int main(int argc, char **argv) {
     std::array<double, nsections> lengths{};
     lengths.fill(total_length / nsections);
     // Fit model
-    MemoryModel<nsections> memory;
-    std::cout << "Fitting " << std::filesystem::absolute(measurements_fname) << "..." << std::flush;
-    memory = MemoryModel<nsections>::fit(measurements, lengths, pmod::optimization::CDESCENT);
-    std::cout << " Done!\n"
-              << "Memory parameters:\n"
-              << memory << std::endl;
+    MemoryModel<nsections> memory(fit<nsections>(std::filesystem::absolute(measurements_fname), measurements, lengths));
+
     // Print frequency sweep
     if (sweep_enabled) {
         std::ofstream fsweep("fsweep.txt");
