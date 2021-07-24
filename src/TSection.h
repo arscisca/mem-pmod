@@ -1,7 +1,8 @@
-
 #ifndef MEM_PMOD_TSECTION_H
 #define MEM_PMOD_TSECTION_H
 
+#include <iostream>
+#include <fstream>
 #include "Types.hpp"
 #include "Electrical.h"
 
@@ -35,6 +36,10 @@ public:
     void setParameters(const PULParameters &pul_parameters, double fmax);
 
     Matrix2 ABCD(double frequency) const;
+
+    // Import and export
+    void exportSection(std::ofstream &ofstream);
+    static TSection importSection(std::ifstream &ifstream);
 private:
     LumpedParameters _parameters;
 };

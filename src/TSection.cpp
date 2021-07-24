@@ -63,3 +63,15 @@ const LumpedParameters & TSection::getParameters() const {
 Matrix2 TSection::ABCD(double frequency) const {
     return GeometricTSection::computeABCD(frequency, _parameters);
 }
+
+void TSection::exportSection(std::ofstream &ofstream) {
+    ofstream << _length;
+    ofstream << _parameters;
+}
+
+TSection TSection::importSection(std::ifstream &ifstream) {
+    TSection tsection;
+    ifstream >> tsection._length;
+    ifstream >> tsection._parameters;
+    return tsection;
+}

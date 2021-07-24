@@ -1,6 +1,8 @@
 #ifndef MEM_PMOD_MEMORYMODEL_HPP
 #define MEM_PMOD_MEMORYMODEL_HPP
 
+#include <ostream>
+#include <fstream>
 #include <array>
 #include <vector>
 #include <thread>
@@ -110,10 +112,11 @@ public:
         return GeometricMemoryModel<NPowerPorts>::computeZMatrix(port1, port2, frequency, _pul_parameters);
     }
 
-    void printLogarithmicFrequencySweep(std::ostream &ostream,
-                                        size_t port1, size_t port2,
-                                        double fmin, double fmax,
-                                        std::size_t fsamples) {
+    void printLogarithmicFrequencySweep(
+            std::ostream &ostream,
+            size_t port1, size_t port2,
+            double fmin, double fmax,
+            std::size_t fsamples) {
         double frequency = fmin;
         double frequency_factor = pow(fmax / fmin, 1.0 / (double) fsamples);
         // CSV header
@@ -165,6 +168,40 @@ public:
                                        pul_parameters,
                                        measurements.frequencies[measurements.frequencies.size() - 1]);
         return model;
+    }
+
+    // -- Exporting and importing --
+    /**
+     * Export memory to a file
+     * @param ostream
+     */
+    void exportModel(std::ofstream &ofstream) const {
+        // Export all sections
+        for (auto &section: _sections) {
+            section.exportSection(ofstream);
+        }
+        // Export general PUL parameters
+        ofstream << _pul_parameters;
+    };
+
+    void exportModel(const std::string &fname) const {
+        std::ofstream ofstream(fname, std::ios::out | std::ios::binary);
+        exportModel(fname);
+    }
+
+    static MemoryModel<NPowerPorts> importModel(std::ifstream &ifstream) {
+        MemoryModel<NPowerPorts> model;
+        // Import sections
+        for (auto &section: model._sections) {
+            section = TSection::importSection(ifstream);
+        }
+        // Import general PUL parameters
+        ifstream >> model._pul_parameters;
+        return model;
+    }
+
+    static MemoryModel<NPowerPorts> importModel(const std::string &fname) {
+        return importModel(std::ifstream(fname, std::ios::in | std::ios::binary));
     }
 
     // -- Operators --
