@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <fstream>
+#include <iomanip>
 #include <array>
 #include <vector>
 #include <thread>
@@ -73,6 +74,8 @@ private:
 
 template<size_t NPowerPorts>
 class MemoryModel : private GeometricMemoryModel<NPowerPorts> {
+private:
+    static constexpr unsigned import_export_precision = std::numeric_limits<double>::max_digits10 + 2;
 public:
     MemoryModel() : _sections(), _pul_parameters{NAN, NAN, NAN, NAN, NAN, NAN, NAN} {};
     MemoryModel(const MemoryModel<NPowerPorts> &other) = default;
@@ -147,13 +150,13 @@ public:
         GeometricMemoryModel<NPowerPorts> geometric_model(lengths);
         // Run optimization function to get PUL Parameters
         Vector<7> initial_values;
-        initial_values << 1000.0,
-                1000.0 / sqrt(1.0e9),
-                1.0e-3,
-                1.0e-3 / sqrt(1.0e9),
-                0.0,
-                10.0e-12 / 1000.0,
-                1.0e-9 * 1000.0;
+        initial_values << reference_pul_parameters.Rsdc,
+                reference_pul_parameters.Rsac,
+                reference_pul_parameters.Ls,
+                reference_pul_parameters.Rpdc,
+                reference_pul_parameters.Rpac,
+                reference_pul_parameters.Lp,
+                reference_pul_parameters.Cp;
         Vector<7> vectorized_pul_parameters = pmod::optimization::optimize<7>(
                 method,
                 [&geometric_model, &measurements](const Vector<7> &vectorized_pul_parameters) {
@@ -176,20 +179,22 @@ public:
      * @param ostream
      */
     void exportModel(std::ofstream &ofstream) const {
+        ofstream.precision(import_export_precision);
         // Export all sections
         for (auto &section: _sections) {
             section.exportSection(ofstream);
         }
         // Export general PUL parameters
-        ofstream << _pul_parameters;
+        ofstream << _pul_parameters << "\n";
     };
 
     void exportModel(const std::string &fname) const {
-        std::ofstream ofstream(fname, std::ios::out | std::ios::binary);
-        exportModel(fname);
+        std::ofstream ofstream(fname, std::ios::binary | std::ios::trunc);
+        exportModel(ofstream);
     }
 
     static MemoryModel<NPowerPorts> importModel(std::ifstream &ifstream) {
+        ifstream.precision(import_export_precision);
         MemoryModel<NPowerPorts> model;
         // Import sections
         for (auto &section: model._sections) {
@@ -201,7 +206,8 @@ public:
     }
 
     static MemoryModel<NPowerPorts> importModel(const std::string &fname) {
-        return importModel(std::ifstream(fname, std::ios::in | std::ios::binary));
+        std::ifstream ifstream(fname, std::ios::binary);
+        return importModel(ifstream);
     }
 
     // -- Operators --

@@ -18,6 +18,7 @@ public:
     LumpedParameters computeParameters(double frequency, const PULParameters &pul_parameters) const;
     Matrix2 computeABCD(double frequency, const LumpedParameters &parameters) const;
 
+    GeometricTSection &operator=(const GeometricTSection &other);
 protected:
     double _length;
 };
@@ -27,6 +28,7 @@ public:
     TSection();
     explicit TSection(double length);
     explicit TSection(const GeometricTSection &geometric);
+    TSection(const TSection &copy);
 
     double getLength() const;
     void setLength(double length);
@@ -38,8 +40,11 @@ public:
     Matrix2 ABCD(double frequency) const;
 
     // Import and export
-    void exportSection(std::ofstream &ofstream);
+    void exportSection(std::ofstream &ofstream) const;
     static TSection importSection(std::ifstream &ifstream);
+
+    // Operators
+    TSection &operator=(const TSection &other);
 private:
     LumpedParameters _parameters;
 };

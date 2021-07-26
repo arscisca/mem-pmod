@@ -35,10 +35,12 @@ Matrix2 GeometricTSection::computeABCD(double frequency, const LumpedParameters 
     return ABCD;
 }
 
+GeometricTSection & GeometricTSection::operator=(const GeometricTSection &other) = default;
 // --- TSection ---
 TSection::TSection() = default;
 TSection::TSection(double length) : GeometricTSection(length), _parameters() {}
 TSection::TSection(const GeometricTSection &geometric) : GeometricTSection(geometric), _parameters() {}
+TSection::TSection(const TSection &copy) = default;
 
 double TSection::getLength() const {
     return _length;
@@ -64,14 +66,14 @@ Matrix2 TSection::ABCD(double frequency) const {
     return GeometricTSection::computeABCD(frequency, _parameters);
 }
 
-void TSection::exportSection(std::ofstream &ofstream) {
-    ofstream << _length;
-    ofstream << _parameters;
+void TSection::exportSection(std::ofstream &ofstream) const {
+    ofstream << _length << "\n" << _parameters;
 }
 
 TSection TSection::importSection(std::ifstream &ifstream) {
     TSection tsection;
-    ifstream >> tsection._length;
-    ifstream >> tsection._parameters;
+    ifstream >> tsection._length >> tsection._parameters;
     return tsection;
 }
+
+TSection &TSection::operator=(const TSection &other) = default;
