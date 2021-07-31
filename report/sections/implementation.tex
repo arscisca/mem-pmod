@@ -2,7 +2,7 @@
 The presented model is very simple yet shows a good accuracy on a wide band of frequencies. A possible improvement on the original discussion is the performance of its implementation, which is not public, but the authors mention \textit{`the computation time is about 5 minutes at a quad core
 computer'}\cite{Hao-HsiangChuang2010ABCP} on a MATLAB script\autocite{5451081}.
 
-This new implementation, titled \textbf{mem-pmod} (MEMory-PowerMODel) is \githublink{open source} and based mainly on C++ plus the support of Python to generate graphics, aims at a better performance and a higher degree of reusability.
+This new implementation, titled \textbf{mem-pmod} (MEMory-PowerMODel) is \githublink{open source} and based mainly on C++ plus the support of Python to generate graphics, aims at a better performance and a higher degree of reusability. The final result is able to execute the same operations on the same amount of data in about 50 s, or one fifth of the original amount of time.
 
 \subsection{Features and Organization}
 Mem-pmod is developed in C++ and is focused on the optimization of the process. It uses multithreading together with the highly optimized Eigen library to maximize performance. It offers:
@@ -138,10 +138,10 @@ In any case, everything was set up to be as reasonably close as possible to real
 \begin{figure}[htbp]
     \center
     \includegraphics[width = 0.9\textwidth]{img/example_output}
-    \caption{Example execution of mem-pmod}
+    \caption{Example execution of mem-pmod. Execution time is highlighted in red.}
     \label{fig:example-output}
 \end{figure}
-\autoref{fig:example-output} shows what a typical execution of mem-pmod looks like. The command line parameters specify, in order: the measurements file, the measurements ports, request a frequency sweep simulation with 10000 frequency samples (from 1 MHz to 10 GHz) and export the model to a file simply called \texttt{memory.model}.
+\autoref{fig:example-output} shows what a typical execution of mem-pmod looks like. The command line parameters specify, in order: the measurements file, the measurements ports, request a frequency sweep simulation with 1000 frequency samples (from 1 MHz to 10 GHz) and export the model to a file simply called \texttt{memory.model}. There was a total of 1000 measurement points in this run, the same amount as were used in the original paper.
 \begin{table}[htbp]
     \center
     \begin{tabular}{|l|l|l|}
