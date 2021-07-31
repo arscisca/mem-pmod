@@ -1,0 +1,30 @@
+\documentclass[12pt,oneside]{article}
+
+\input{packages}
+\addbibresource{bibliography.bib}
+
+\newcommand{\githublink}[1]{\href{https://github.com/arscisca/mem-pmod}{#1}}
+
+\title{
+	{\Huge \textbf{Politecnico di Torino}}\\ \ \\
+	{\large Project for Advanced Design for Signal Integrity and Compliance} \\ \ \\
+    {\huge \textbf{A Power Bus-Model for High-Speed Memory Circuits}} \\ \ \\
+	{\includegraphics[width=\textwidth]{img/polito_logo_2021_blu}}
+}
+\author{
+	\textsc{Alessandro Rocco Scisca} \\
+    s276032
+}
+\date{} % Do not insert date
+
+
+\begin{document}
+    \maketitle
+    \newpage
+    \tableofcontents
+    \hypersetup{linkcolor=blue}
+    \include{sections/introduction}
+    \include{sections/model}
+    \include{sections/implementation}
+    \printbibliography[heading=bibintoc]
+\end{document}

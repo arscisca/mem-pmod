@@ -1,0 +1,10 @@
+\section{Introduction}
+This project is based on the results of the article \emph{A Broadband Chip-Level Power-Bus Model Feasible for Power Integrity Chip-Package Codesign in High-Speed Memory Circuits} \cite{Hao-HsiangChuang2010ABCP}. All the source code and experimental data is publicly available on \href{https://github.com/arscisca/mem-pmod}{GitHub}.
+
+\subsection{Power Integrity}
+As for most devices gaining traction both in the consumer oriented and int the general electronics markets, memory systems have been greatly increasing their performance over the past years and newer standards are always proposed for future architectures.
+
+Along with the significant increase in capacity, it is the memory speed -intended as its data transfer rate- which is central in this constant improvement process. Speed is such a crucial parameter because memories are generally much slower than the main processor, meaning that trying to access data may cost a few precious CPU cycles whenever such data is to be read from the main memory (e.g.: not present in caches or local CPU registers). The system will most certainly benefit from a faster memory, but the design process of such high speed memories becomes more and more of concern. Specifically, the chip's Power Integrity has to be well analyzed and taken care of.
+
+Writing data to a bus at such speeds requires not only faster bus drivers, but also a solid internal power bus which may suffer from the constant high frequency, high current switching that is required. Because of the parasitics of the bus, voltage drops and unintended filtering may cause the outputs to be unrecognizable.
+This is the reason why it is necessary to study an efficient model for the power bus in order to simulate its behavior at arbitrary frequencies.

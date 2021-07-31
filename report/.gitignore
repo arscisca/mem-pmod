@@ -1,0 +1,4 @@
+# LaTeX compilation files
+main.*
+!main.tex
+!main.pdf
