@@ -313,7 +313,7 @@ std::ostream &operator<<(std::ostream &ostream, const MemoryModel<NPowerPorts> &
             << "Rpdc = " << pul_parameters.Rpdc << " \u03A9 * m\n"
             << "Rpac = " << pul_parameters.Rpac << " \u03A9 / (m * \u221AHz)\n"
             << "Lp   = " << pul_parameters.Lp   << " H * m\n"
-            << "Cp   = " << pul_parameters.Cp   << " F / n" << std::endl;
+            << "Cp   = " << pul_parameters.Cp   << " F / m" << std::endl;
     return ostream;
 }
 

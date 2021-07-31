@@ -37,6 +37,8 @@ int main(int argc, char **argv) {
     unsigned port1 = std::stoi(argv[2]);
     unsigned port2 = std::stoi(argv[3]);
     bool sweep_enabled = false;
+    bool export_enabled = false;
+    std::string export_file = "";
     std::size_t sweep_n_samples = 0;
     for (int i = 4; i < argc; i++) {
         // Parse optional arguments
@@ -50,6 +52,14 @@ int main(int argc, char **argv) {
             }
             sweep_n_samples = std::stoull(argv[i+1]);
             sweep_enabled = true;
+            i += 1;
+        } else if (arg.compare(0, 2, "-e") == 0) {
+            if (i + 1 >= argc) {
+                std::cerr << "mem-pmod error: usage: mem-pmod [...] -e MODELNAME";
+                return -1;
+            }
+            export_file = std::string(argv[i+1]);
+            export_enabled = true;
             i += 1;
         }
     }
@@ -67,6 +77,12 @@ int main(int argc, char **argv) {
     // Fit model
     MemoryModel<nsections> memory(fit<nsections>(std::filesystem::absolute(measurements_fname), measurements, lengths));
 
+    // Export model
+    if (export_enabled) {
+        std::cout << "Exporting model to "<< std::filesystem::absolute(export_file + ".model") << "...";
+        memory.exportModel(export_file + ".model");
+        std::cout << "Done!" << std::endl;
+    }
     // Print frequency sweep
     if (sweep_enabled) {
         std::ofstream fsweep("fsweep.txt");
