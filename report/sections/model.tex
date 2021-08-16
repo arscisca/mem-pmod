@@ -1,6 +1,6 @@
 \section{Model}
 \subsection{Sections}
-Regardless of the Power Integrity issues, memories are organized so that each output data pin \texttt{DQ} is interleaved with \texttt{VDDQ} and \texttt{VSSQ} power pins as in \autoref{fig:pin-layout} to help the receiver recognizing the data which may be distorted at such high speeds.
+Memories are organized so that each output data pin \texttt{DQ} is interleaved with \texttt{VDDQ} and \texttt{VSSQ} power pins as in \autoref{fig:pin-layout} to help the receiver in recognizing the data which may be distorted at such high speeds.
 \begin{figure}[htbp]
 	\center
 	\includegraphics[width = \textwidth]{img/pin-layout}
@@ -8,7 +8,7 @@ Regardless of the Power Integrity issues, memories are organized so that each ou
 	\label{fig:pin-layout}
 \end{figure}
 
-\autoref{fig:pin-layout} also shows how the memory can be subdivided in sections of length $\alpha_i$ which are not necessarily equal. Each section can be modeled with a two port device strucured as in \autoref{fig:tsection-model}.
+It is possible to split the power bus in sections - one for each power pin - of lengths $\alpha_i$ as shown in \autoref{fig:pin-layout}. Each section can be modeled with a two port device strucured as in \autoref{fig:tsection-model}.
 \begin{figure}[htbp]
 	\center
 	\includegraphics[width = 0.4\textwidth]{img/tsection-model}
@@ -18,9 +18,9 @@ Regardless of the Power Integrity issues, memories are organized so that each ou
 
 \subsection{Parameters}
 \label{ssec:parameters}
-Each section will thus have five characterizing parameters: $R^i_s$, $L^i_s$, $R^i_p$, $L^i_p$, $C^i_p$. These parameters depend on the overall Per-Unit-Length (PUL) parameters $R_s$, $L_s$, $R_p$, $L_p$, $C_p$ and the length of each section $\alpha_i$. Given this model, the objective is to fit a set of real measurements in order to infer the memory PUL parameters which, in turn, will determine each section's parameters.
+Each section has five characterizing parameters: $R^i_s$, $L^i_s$, $R^i_p$, $L^i_p$, $C^i_p$ which depend on the overall Per-Unit-Length (PUL) parameters $R_s$, $L_s$, $R_p$, $L_p$, $C_p$ and the section length $\alpha_i$. PUL parameters also take the skin effect into consideration by using a DC resistance and an AC resistance which depends on frequency. The effective resistance of a memory section will be the greatest of the two for a given frequency.
 
-This model can also account for the skin effect with a simple change, which is integrated in the final solution. Specifically, it is possible to split the PUL parameters $R_s$ and $R_p$ into $R_{s,\,dc}$, $R_{s,\,ac}$, $R_{p,\,dc}$ and $R_{p,\,ac}$. In order to map the PUL parameters to section-specific parameters it is possible to use:
+In general, section parameters are computed from PUL parameters with the following formulas:
 \begin{align*}
     R^i_s &= \alpha_i \max\left(R_{s,\,dc},\, R_{s,\,ac}\sqrt{\omega}\right) \\
     L^i_s &= \alpha_i L_s \\
@@ -28,22 +28,21 @@ This model can also account for the skin effect with a simple change, which is i
     L^i_p &= \frac{1}{\alpha_i} L_p \\
     C^i_p &= \alpha_i C_p
 \end{align*}
+Thanks to these formulas, it is possible to accurately represent the behavior of a power pin based on the power bus PUL parameters and the section lengths.
 
 \subsection{Fitting}
 \label{ssec:fitting}
-The unknowns of the problem are the PUL parameters - section lengths are to be manually measured or retrieved from layout information. The measured quantity is the two port $Z$ matrix throughout a certain range of frequencies between two arbitrary ports of the device.
+While section lengths are known a-priori from layout information, PUL parameters can instead be determined by fitting real world electrical measurements. The measured quantity is the two port $Z$ matrix between two arbitrary power pins. In order to compare the model to its real world counterpart, the procedure in \autoref{ssec:from-parameters-to-Z-matrix} explains how the $Z$ matrix can be computed from the model parameters.
 
-To be able to compare the real-world measurements to the simulated values we need to transform the device PUL parameters to its $Z$ matrix between the same two ports of the measurements. This procedure is discussed in \autoref{ssec:from-parameters-to-Z-matrix}.
-
-The fitting process will thus be reduced to a multi-variable optimization process, where the input is a vector representing the PUL parameters and the evaluated function will be an error function - the distance between the model and physical device. In this case:
+The fitting process is thus reduced to a multi-variable optimization process, where the unknowns are the PUL parameters and the error to the real world device is to be minimized. The error function $U\left(\vec{p}\right)$ can be expressed as:
 \begin{align*}
-    U\left(\vec{p}\right) &= \sum_{i = 0}^N \left|| Z_s\left(\vec{p}, f_i\right) - Z_m(f_i) \right|| ^2
+    U\left(\vec{p}\right) &= \sum_{i = 0}^N \left|| Z_s\left(\vec{p}, f_i\right) - Z_m(f_i) |\right| ^2
 \end{align*}
 where $\vec{p}$ is a vector representing the device PUL parameters, $N$ is the total number of measured frequencies, $f_i$ is the i-th measured frequency, $Z_s$ is the impedance matrix obtained from the simulation and $Z_m$ is the measured matrix.
 
 \subsection{From PUL Parameters to Z Matrix}
 \label{ssec:from-parameters-to-Z-matrix}
-In the previously mentioned $U(\vec{p})$ formula it is necessary to compute $Z_s\left(\vec{p}, f_i\right)$, which means computing an impedance matrix between two fixed ports of the device starting from its PUL parameters. The passages are as follows:
+In order to obtain $U(\vec{p})$ it is necessary to compute $Z_s\left(\vec{p}, f_i\right)$, which means computing an impedance matrix starting from the model's PUL parameters.
 \begin{enumerate}
     \item Compute each section's parameters from PUL parameters as in \autoref{ssec:parameters}
     \item Compute each section's ABCD matrix with
@@ -71,4 +70,4 @@ In the previously mentioned $U(\vec{p})$ formula it is necessary to compute $Z_s
 \end{enumerate}
 
 \subsection{Results}
-After finding the best $\vec{p}$ that minimizes $U(\vec{p})$, the resulting PUL parameters are a good description of the physical device and the model error is limited. It is possible at this point to simulate a frequency sweep and compare the simulated model to its real world counterpart.
+After finding the best $\vec{p}$ that minimizes $U(\vec{p})$, the resulting PUL parameters are a good description of the physical device which limits the model error.

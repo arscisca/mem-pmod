@@ -1,8 +1,7 @@
 \section{Implementation}
-The presented model is very simple yet shows a good accuracy on a wide band of frequencies. A possible improvement on the original discussion is the performance of its implementation, which is not public, but the authors mention \textit{`the computation time is about 5 minutes at a quad core
-computer'}\cite{Hao-HsiangChuang2010ABCP} on a MATLAB script\autocite{5451081}.
+The presented model is very simple yet shows a good accuracy on a wide band of frequencies. A possible improvement on the original discussion is the performance of its implementation. The original implementation is not publicly available, but it is reported that \textit{`the computation time is about 5 minutes at a quad core computer'}\cite{Hao-HsiangChuang2010ABCP} on a MATLAB script\autocite{5451081}.
 
-This new implementation, titled \textbf{mem-pmod} (MEMory-PowerMODel) is \githublink{open source} and based mainly on C++ plus the support of Python to generate graphics, aims at a better performance and a higher degree of reusability. The final result is able to execute the same operations on the same amount of data in about 50 s, or one fifth of the original amount of time.
+This proposed implementation, titled \textbf{mem-pmod} (MEMory-PowerMODel) is \githublink{open source} and based on C++ plus the support of Python to generate graphics. It aims at a better performance and a higher degree of reusability. The developed program can simulate and extract a model on the same amount of data in about 50 s, or one sixth of the original amount of time.
 
 \subsection{Features and Organization}
 Mem-pmod is developed in C++ and is focused on the optimization of the process. It uses multithreading together with the highly optimized Eigen library to maximize performance. It offers:
@@ -37,9 +36,9 @@ f Z11 Z12 Z21 Z22
 +1.148154e+06 (+1.246268e+01,-2.787069e+01) (-4.822186e+00,-2.527343e+01) (-4.822186e+00,-2.527343e+01) (+1.246268e+01,-2.787069e+01)
 +1.202264e+06 (+1.243432e+01,-2.673511e+01) (-4.795195e+00,-2.402906e+01) (-4.795195e+00,-2.402906e+01) (+1.243432e+01,-2.673511e+01)
 \end{lstlisting}
-Each line contains, in order, the measurement frequency in Hz and the four elements of the $Z$ matrix in $\Omega$. Each element is a complex number, so it is represented as a pair (\textit{real part}, \textit{imaginary part}).
+Each line contains, in order, the measurement frequency in Hz and the four elements of the $Z$ matrix in $\Omega$ separated by spaces. Each matrix element is a complex number and it is written as (\textit{real part}, \textit{imaginary part}).
 
-Measurements are stored in a specific structure:
+Inside the program, measurements are stored in a specific structure:
 \begin{lstlisting}[language=C++]
 struct Measurements {
     std::vector<double> frequencies;
@@ -49,14 +48,14 @@ struct Measurements {
     std::size_t nsamples;
 };
 \end{lstlisting}
-Which is initialized by
+Which is initialized by the function
 \begin{lstlisting}
 Measurements readMeasurements(const std::string &fname, unsigned port1, unsigned port2);
 \end{lstlisting}
 The two ports from which the measurements were taken are specified as command line arguments.
 
 \subsection{Geometric and Complete Models}
-The overall memory is modeled in two steps: there is a model for a single TSection and the MemoryModel holds an array of TSections plus the PUL parameters. To keep the fitting process as clean as possible, models are also divided between Geometric and Complete. Geometric models only keep geometric information, Complete models expand the concept and also have additional information such as electrical parameters.
+The overall memory is modeled in two structures: there is a model for a single TSection and a MemoryModel whoch holds an array of TSections plus the PUL parameters. There is a distinction between Geometric and Complete models: geometric models only keep track of geomery information, also contain electrical parameters and additional information. Below are some snippets of the various models in their two forms:
 
 \begin{lstlisting}[title=Snippets for Geometric and Complete TSection]
 class GeometricTSection {
@@ -98,30 +97,37 @@ private:
 \end{lstlisting}
 
 \subsection{Fitting}
-The MemoryModel class also offers the interface for fitting and this is where the multithreading action happens. This class offers a static method called \texttt{fit()} which sets up and passes the necessary information to the optimization module and finally initializes a MemoryModel based on the input data.
+The MemoryModel class also offers the interface for fitting and this is where multithreading happens. This class offers a static method called \texttt{fit()} to initialize a model by fitting measurements using the optimization module.
 \begin{lstlisting}
 static MemoryModel<NPowerPorts> fit(
         const Measurements &measurements,
         const std::array<double, NPowerPorts> lengths,
         pmod::optimization::Algorithm method = pmod::optimization::Algorithm::CDESCENT);
 \end{lstlisting}
-The function \texttt{fittingError()}, also offered from the same class, is the function that computes the error function described in \autoref{ssec:fitting}. Since this operation requires computing a Z matrix for each measured frequency, the measurements vector is divided in chunks which are computed in parallel through multithreading. The number of chunks depends on the hardware characteristics and is chosen to be as fast as possible. This is where the greatest improvement in performance happens.
+The function \texttt{fittingError()}, also offered from the same class, is the function that computes the error function described in \autoref{ssec:fitting} of a given model. This function is very expensive because it computes the Z matrix of a model for each measured frequency, but luckily this process can be parallelized with multithreading by splitting the job in chunks, each handled by a thread. The number of thread depends on hardware information in order to always maximize performance.
 \begin{lstlisting}
 static double fittingError(
             const GeometricMemoryModel<NPowerPorts> &model,
             const PULParameters &pul_parameters,
             const Measurements &measurements,
-            bool enable_threading = true);
+            bool enable_threading = true)
 \end{lstlisting}
 
-The optimization module is the one that runs the actual optimization algorithm but treats everything as a generic multidimensional optimization problem. It offers the templated function
+The optimization module is the one that runs the actual optimization algorithm and it treats everything as a generic multidimensional optimization problem. It offers the templated function
 \begin{lstlisting}
 template<std::size_t N>
 Vector<N> optimize(Algorithm algorithm, std::function<double(Vector<N>)> function, Vector<N> x0, double threshold);
 \end{lstlisting}
 which automatically manages everything and allows for the choice of an optimization algorithm.
 
-The original paper uses Powell's method whose manual implementation is difficult and outside the current scope of this project. The currently implemented algorithm is the Coordinate Descent algorithm, which can be slower and gets trapped in local minima more easily, but this should not be a problem at the moment.
+The original paper uses Powell's method whose manual implementation is difficult and outside the current scope of this project. The currently implemented algorithm is a modified version of the Coordinate Descent algorithm, which can be slower and may get trapped in local minima more easily. The algorithm simply minimizes the function along each dimension in turn.
+\begin{figure}[htbp]
+    \center
+    \includegraphics[width = 0.7\textwidth]{img/coordinate_descent}
+    \caption{Behavior of the Coordinate Descent algorithm. Courtesy of Wikipedia\autocite{CoordinateDescent}}
+    \label{fig:example-output}
+\end{figure}
+In order to minimize the likelihood of getting trapped in local minima, the algorithm detects when stability is reached too soon and, in that case, adds some noise to free the point from the trap. The best minimum is always recorded and it is the one that is returned as a result.
 
 \subsection{Importing and Exporting}
 As mentioned above, it is also possible to import and export memory models. This is done by specific functions implemented for the MemoryModel and TSection classes which internally manage all the necessary steps. The current implementation simply dumps all the relevant parameters in order in a text file and then the importer just reads them.
@@ -129,11 +135,11 @@ As mentioned above, it is also possible to import and export memory models. This
 \subsection{Results}
 The results discussed in this section will be numerically different from the ones of the paper, but it is evident how the trend is perfectly matching. This is because:
 \begin{enumerate}
-    \item Measurements were manually generated since they are not available from the publication and they are not retrievable from the graphs because most functions overlap
-    \item Section lengths were arbitrarily set since the paper only mentions the overall memory length ($\SI{4074}{\micro m}$) but does not mention the single section lengths nor the memory model or its layout where to retrieve them from
+    \item Measurements used in the paper are not available nor easily accessible, so they were manually generated
+    \item The paper only specifies the overall memory length ($\SI{4074}{\micro m}$), so it was assumed all sections were equally long. This assumption is likely imprecise
     \item The optimization algorithm is different
 \end{enumerate}
-In any case, everything was set up to be as reasonably close as possible to realistic inputs and the results from the paper.
+In any case, everything was set up to be as reasonably close as possible to the the results from the paper and to realistic values.
 
 \begin{figure}[htbp]
     \center
@@ -141,7 +147,7 @@ In any case, everything was set up to be as reasonably close as possible to real
     \caption{Example execution of mem-pmod. Execution time is highlighted in red.}
     \label{fig:example-output}
 \end{figure}
-\autoref{fig:example-output} shows what a typical execution of mem-pmod looks like. The command line parameters specify, in order: the measurements file, the measurements ports, request a frequency sweep simulation with 1000 frequency samples (from 1 MHz to 10 GHz) and export the model to a file simply called \texttt{memory.model}. There was a total of 1000 measurement points in this run, the same amount as were used in the original paper.
+\autoref{fig:example-output} shows what a typical execution of mem-pmod looks like. The command line parameters specify, in order: the measurements file, the measurements ports, request a frequency sweep simulation with 1000 frequency samples (from 1 MHz to 10 GHz) and to export the model to a file called \texttt{memory.model}. There was a total of 1000 measurement points in this run, the same amount as were used in the original paper.
 \begin{table}[htbp]
     \center
     \begin{tabular}{|l|l|l|}
@@ -163,7 +169,7 @@ The obtained PUL parameters visible in \autoref{fig:example-output} are also sho
 \begin{figure}[htbp]
     \center
     \includegraphics[width = 0.9\textwidth]{img/zmatrix}
-    \caption{Results from mem-pmod against original measurements}
+    \caption{Results from mem-pmod against passed measurements}
     \label{fig:zmatrix}
 \end{figure}
 
