@@ -55,7 +55,7 @@ Measurements readMeasurements(const std::string &fname, unsigned port1, unsigned
 The two ports from which the measurements were taken are specified as command line arguments.
 
 \subsection{Geometric and Complete Models}
-The overall memory is modeled in two structures: there is a model for a single TSection and a MemoryModel whoch holds an array of TSections plus the PUL parameters. There is a distinction between Geometric and Complete models: geometric models only keep track of geomery information, also contain electrical parameters and additional information. Below are some snippets of the various models in their two forms:
+The overall memory is modeled in two structures: there is a model for a single TSection and a MemoryModel whoch holds an array of TSections plus the PUL parameters. There is a distinction between Geometric and Complete models: geometric models only keep track of geometry information, complete models also contain electrical parameters and additional information. Below are some snippets of the various models in their two forms:
 
 \begin{lstlisting}[title=Snippets for Geometric and Complete TSection]
 class GeometricTSection {
@@ -104,7 +104,7 @@ static MemoryModel<NPowerPorts> fit(
         const std::array<double, NPowerPorts> lengths,
         pmod::optimization::Algorithm method = pmod::optimization::Algorithm::CDESCENT);
 \end{lstlisting}
-The function \texttt{fittingError()}, also offered from the same class, is the function that computes the error function described in \autoref{ssec:fitting} of a given model. This function is very expensive because it computes the Z matrix of a model for each measured frequency, but luckily this process can be parallelized with multithreading by splitting the job in chunks, each handled by a thread. The number of thread depends on hardware information in order to always maximize performance.
+The function \texttt{fittingError()}, also offered from the same class, is the function that computes the error function described in \autoref{ssec:fitting} of a given model. This function is very expensive because it computes the Z matrix of a model for each measured frequency, but luckily this process can be parallelized with multithreading by splitting the job in chunks, each handled by a thread. The number of threads depends on hardware information in order to always maximize performance.
 \begin{lstlisting}
 static double fittingError(
             const GeometricMemoryModel<NPowerPorts> &model,
@@ -143,7 +143,7 @@ In any case, everything was set up to be as reasonably close as possible to the 
 
 \begin{figure}[htbp]
     \center
-    \includegraphics[width = 0.9\textwidth]{img/example_output}
+    \includegraphics[width = \textwidth]{img/example_output}
     \caption{Example execution of mem-pmod. Execution time is highlighted in red.}
     \label{fig:example-output}
 \end{figure}
@@ -168,16 +168,9 @@ The obtained PUL parameters visible in \autoref{fig:example-output} are also sho
 
 \begin{figure}[htbp]
     \center
-    \includegraphics[width = 0.9\textwidth]{img/zmatrix}
+    \includegraphics[width = \textwidth]{img/zmatrix}
     \caption{Results from mem-pmod against passed measurements}
     \label{fig:zmatrix}
-\end{figure}
-
-\begin{figure}[htbp]
-    \center
-    \includegraphics[width = 0.6\textwidth]{img/zmatrix-paper}
-    \caption{Results from paper}
-    \label{fig:zmatrix-paper}
 \end{figure}
 
 

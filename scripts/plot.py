@@ -8,7 +8,6 @@ def _data_properties(fname, title, line):
     return {
         'fname': fname,
         'title': title,
-        'legend': [],
         'line': line
     }
 
@@ -32,6 +31,7 @@ def main():
     measurements = _data_properties(sys.argv[1], 'measured', '--')
     simulated = _data_properties(sys.argv[2], 'simulated', '-')
     impedances = {'Z11': 'b', 'Z12': 'r', 'Z22': 'g'}
+    legends = [[], []]
     # Plot measurements and then the extracted data
     for data_properties in [measurements, simulated]:
         # Read data
@@ -42,19 +42,19 @@ def main():
             }
         )
         # Plot impedances
-        for plot_properties in [_plot_properties(np.real, 'Re', (2, 1, 1)), _plot_properties(np.imag, 'Im', (2, 1, 2))]:
+        for i, plot_properties in enumerate([_plot_properties(np.real, 'Re', (2, 1, 1)), _plot_properties(np.imag, 'Im', (2, 1, 2))]):
             plt.subplot(*plot_properties['subplot'])
-            for i, (impedance, color) in enumerate(impedances.items()):
+            for j, (impedance, color) in enumerate(impedances.items()):
                 func = plot_properties['func']
-                plt.semilogx(data['f'] / 1e9, func(data[impedance]), f"{data_properties['line']}{color}", zorder=-i)
+                plt.semilogx(data['f'] / 1e9, func(data[impedance]), f"{data_properties['line']}{color}", zorder=-j)
                 plt.xlabel('f (GHz)')
                 plt.ylabel(f"{plot_properties['label']}(Z) (Ω)")
-                data_properties['legend'].append(f"{impedance} {data_properties['title']}")
+                legends[i].append(f"{impedance} {data_properties['title']}")
     # Format plots
     for i, props in enumerate([measurements, simulated]):
         plt.subplot(2, 1, i + 1)
         plt.xlim([1e-3, 10])
-        plt.legend(props['legend'], loc='upper right')
+        plt.legend(legends[i], loc='upper right')
         plt.grid(True, which='both')
     plt.margins(0.5)
     plt.show()
